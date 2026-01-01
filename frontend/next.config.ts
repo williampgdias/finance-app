@@ -1,8 +1,15 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: true,
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'i.pravatar.cc', // allow images from this domain
+            },
+        ],
+    },
+    reactCompiler: true,
 };
 
 export default nextConfig;

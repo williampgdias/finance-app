@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Image from 'next/image';
 import { Transaction } from '@/types/Transaction';
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        // Function to fetch data from our Laravel API
         const fetchData = async () => {
             try {
                 const response = await axios.get(
@@ -18,7 +20,7 @@ export default function Home() {
                 setTransactions(response.data);
             } catch (err) {
                 setError(
-                    'Error loading transactions. Is the backend connected?'
+                    'Failed to load transactions. Is the backend running?'
                 );
                 console.error(err);
             } finally {
@@ -35,7 +37,7 @@ export default function Home() {
     return (
         <main className="min-h-screen bg-gray-50 p-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-8">
-                My Finances
+                Transactions
             </h1>
 
             <div className="bg-white rounded-lg shadow overflow-hidden max-w-4xl">
@@ -52,7 +54,7 @@ export default function Home() {
                                 Date
                             </th>
                             <th className="p-4 font-semibold text-right text-gray-600">
-                                Value
+                                Amount
                             </th>
                         </tr>
                     </thead>
@@ -64,14 +66,16 @@ export default function Home() {
                             >
                                 <td className="p-4 flex items-center gap-3">
                                     {t.avatar ? (
-                                        <img
+                                        <Image
                                             src={t.avatar}
                                             alt={t.name}
-                                            className="w-10 h-10 rounded-full object-cover"
+                                            width={40}
+                                            height={40}
+                                            className="rounded-full object-cover"
                                         />
                                     ) : (
-                                        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-xs">
-                                            ?
+                                        <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-xs">
+                                            N/A
                                         </div>
                                     )}
                                     <span className="font-medium text-gray-800">
@@ -83,7 +87,7 @@ export default function Home() {
                                 </td>
                                 <td className="p-4 text-gray-500 text-sm">
                                     {new Date(t.date).toLocaleDateString(
-                                        'en-EN'
+                                        'en-IE'
                                     )}
                                 </td>
                                 <td
