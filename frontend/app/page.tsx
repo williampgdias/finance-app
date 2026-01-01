@@ -53,7 +53,7 @@ export default function Home() {
                 <div className="bg-white p-6 rounded-xl shadow-sm h-64 flex items-center justify-center text-gray-400 border border-dashed">
                     Budgets Chart (Coming Soon)
                 </div>
-                <div className="col-span-1 lg:col-span-2 bg-white p-6 rounded-xl shadow-sm h-64 flex items-center justify-center text-gray-400 border border-dashed">
+                <div className="col-span-1 lg:col-span-2">
                     <RecentTransactions transactions={transactions} />
                 </div>
             </div>
