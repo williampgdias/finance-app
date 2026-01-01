@@ -6,6 +6,7 @@ import { Transaction } from '@/types/Transaction';
 import SummaryCards from '@/components/SummaryCards';
 import RecentTransactions from '@/components/RecentTransactions';
 import BudgetsChart from '@/components/BudgetsChart';
+import PotsWidget from '@/components/PotsWidget';
 
 export default function Home() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -48,9 +49,7 @@ export default function Home() {
 
             {/* Placeholder for other widgets (Pots, Budgets, etc) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white p-6 rounded-xl shadow-sm h-64 flex items-center justify-center text-gray-400 border border-dashed">
-                    Pots Widget (Coming Soon)
-                </div>
+                <PotsWidget />
 
                 <BudgetsChart transactions={transactions} />
                 <div className="col-span-1 lg:col-span-2">

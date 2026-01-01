@@ -69,7 +69,7 @@ export default function BudgetsChart({ transactions }: BudgetsChartProps) {
                             contentStyle={{
                                 borderRadius: '12px',
                                 border: 'none',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.1',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                             }}
                         />
                     </PieChart>
