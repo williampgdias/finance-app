@@ -1,10 +1,105 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Transaction } from '@/types/Transaction';
+
 export default function Home() {
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(
+                    'http://localhost/api/transactions'
+                );
+                setTransactions(response.data);
+            } catch (err) {
+                setError(
+                    'Error loading transactions. Is the backend connected?'
+                );
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) return <div className="p-8">Loading data... ⏳</div>;
+    if (error) return <div className="p-8 text-red-500">{error} 🚨</div>;
+
     return (
-        <main className="min-h-screen bg-gray-100 p-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Finance Dashboard
+        <main className="min-h-screen bg-gray-50 p-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-8">
+                My Finances
             </h1>
-            <p className="text-gray-600">Connecting to the backend soon...</p>
+
+            <div className="bg-white rounded-lg shadow overflow-hidden max-w-4xl">
+                <table className="w-full text-left">
+                    <thead className="bg-gray-100 border-b">
+                        <tr>
+                            <th className="p-4 font-semibold text-gray-600">
+                                Name
+                            </th>
+                            <th className="p-4 font-semibold text-gray-600">
+                                Category
+                            </th>
+                            <th className="p-4 font-semibold text-gray-600">
+                                Date
+                            </th>
+                            <th className="p-4 font-semibold text-right text-gray-600">
+                                Value
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {transactions.map((t) => (
+                            <tr
+                                key={t.id}
+                                className="border-b hover:bg-gray-50 transition"
+                            >
+                                <td className="p-4 flex items-center gap-3">
+                                    {t.avatar ? (
+                                        <img
+                                            src={t.avatar}
+                                            alt={t.name}
+                                            className="w-10 h-10 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-xs">
+                                            ?
+                                        </div>
+                                    )}
+                                    <span className="font-medium text-gray-800">
+                                        {t.name}
+                                    </span>
+                                </td>
+                                <td className="p-4 text-gray-500">
+                                    {t.category}
+                                </td>
+                                <td className="p-4 text-gray-500 text-sm">
+                                    {new Date(t.date).toLocaleDateString(
+                                        'en-EN'
+                                    )}
+                                </td>
+                                <td
+                                    className={`p-4 text-right font-bold ${
+                                        t.is_income
+                                            ? 'text-green-600'
+                                            : 'text-gray-900'
+                                    }`}
+                                >
+                                    {t.is_income ? '+' : '-'}${t.amount}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </main>
     );
 }
