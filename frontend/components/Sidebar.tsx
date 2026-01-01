@@ -16,7 +16,7 @@ export default function Sidebar() {
 
     const menuItems = [
         { name: 'Overview', href: '/', icon: LayoutDashboard },
-        { name: 'Transactions', href: '/transaction', icon: ArrowUpDown },
+        { name: 'Transactions', href: '/transactions', icon: ArrowUpDown },
         { name: 'Budgets', href: '/budgets', icon: PieChart },
         { name: 'Pots', href: '/pots', icon: PiggyBank },
         {
