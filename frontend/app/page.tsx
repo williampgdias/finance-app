@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Transaction } from '@/types/Transaction';
 import SummaryCards from '@/components/SummaryCards';
 import RecentTransactions from '@/components/RecentTransactions';
+import BudgetsChart from '@/components/BudgetsChart';
 
 export default function Home() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -50,9 +51,8 @@ export default function Home() {
                 <div className="bg-white p-6 rounded-xl shadow-sm h-64 flex items-center justify-center text-gray-400 border border-dashed">
                     Pots Widget (Coming Soon)
                 </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm h-64 flex items-center justify-center text-gray-400 border border-dashed">
-                    Budgets Chart (Coming Soon)
-                </div>
+
+                <BudgetsChart transactions={transactions} />
                 <div className="col-span-1 lg:col-span-2">
                     <RecentTransactions transactions={transactions} />
                 </div>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Transaction } from '@/types/Transaction';
+import Image from 'next/image';
 
 interface RecentTransactionsProps {
     transactions: Transaction[];
@@ -53,10 +54,12 @@ export default function RecentTransactions({
                                 {/* Avatar / Icon Placeholder */}
                                 <div className="hidden sm:block">
                                     {transaction.avatar ? (
-                                        <img
+                                        <Image
+                                            width={40}
+                                            height={40}
                                             src={transaction.avatar}
                                             alt={transaction.name}
-                                            className="w-10 h-10 rounded-full object-cover"
+                                            className="rounded-full object-cover"
                                         />
                                     ) : (
                                         <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold">
