@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Transaction } from '@/types/Transaction';
 import SummaryCards from '@/components/SummaryCards';
+import RecentTransactions from '@/components/RecentTransactions';
 
 export default function Home() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -53,7 +54,7 @@ export default function Home() {
                     Budgets Chart (Coming Soon)
                 </div>
                 <div className="col-span-1 lg:col-span-2 bg-white p-6 rounded-xl shadow-sm h-64 flex items-center justify-center text-gray-400 border border-dashed">
-                    Recent Transactions (Coming Soon)
+                    <RecentTransactions transactions={transactions} />
                 </div>
             </div>
         </main>
