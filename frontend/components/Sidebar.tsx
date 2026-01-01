@@ -17,6 +17,7 @@ export default function Sidebar() {
     const pathname = usePathname();
     const [isMinimized, setIsMinimized] = useState(false);
 
+    // Removi o isMobile pois vamos usar CSS puro para o layout agora
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isMobile, setIsMobile] = useState(false);
 
@@ -32,9 +33,7 @@ export default function Sidebar() {
         };
 
         handleResize();
-
         window.addEventListener('resize', handleResize);
-
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
@@ -57,9 +56,10 @@ export default function Sidebar() {
     return (
         <aside
             className={`
-                bg-gray-900 min-h-screen text-white flex flex-col transition-all duration-300 ease-in-out
-                ${isMinimized ? 'w-22' : 'w-75'}
-                fixed md:relative z-50 /* Fixo no mobile para não empurrar o conteúdo */
+                bg-gray-900 text-white flex flex-col transition-all duration-300 ease-in-out
+                ${
+                    isMinimized ? 'w-20' : 'w-72'
+                } sticky top-0 h-screen z-50 shrink-0
             `}
         >
             {/* Logo Area */}
@@ -78,7 +78,7 @@ export default function Sidebar() {
             </div>
 
             {/* Navigation Links */}
-            <nav className="flex-1 px-4 space-y-2 py-4">
+            <nav className="flex-1 px-4 space-y-2 py-4 overflow-y-auto">
                 {menuItems.map((item) => {
                     const isActive = pathname === item.href;
 
@@ -103,8 +103,8 @@ export default function Sidebar() {
                                 whitespace-nowrap overflow-hidden transition-all duration-300
                                 ${
                                     isMinimized
-                                        ? 'w-0 opacity-0'
-                                        : 'w-auto opacity-100'
+                                        ? 'w-0 opacity-0 hidden'
+                                        : 'w-auto opacity-100 block'
                                 }
                             `}
                             >
@@ -133,7 +133,11 @@ export default function Sidebar() {
                     <span
                         className={`
                         whitespace-nowrap overflow-hidden transition-all duration-300
-                        ${isMinimized ? 'w-0 opacity-0' : 'w-auto opacity-100'}
+                        ${
+                            isMinimized
+                                ? 'w-0 opacity-0 hidden'
+                                : 'w-auto opacity-100 block'
+                        }
                     `}
                     >
                         Minimize Menu
