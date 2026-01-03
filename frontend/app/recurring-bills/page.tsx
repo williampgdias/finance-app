@@ -1,50 +1,60 @@
 'use client';
 
-import { ReceiptText, CheckCircle2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { ReceiptText, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+
+interface RecurringBill {
+    id: number;
+    name: string;
+    amount: string;
+    status: 'paid' | 'upcoming';
+    due_day: string;
+    logo: string;
+}
 
 export default function RecurringBillsPage() {
-    const bills = [
-        {
-            name: 'Spark Energy',
-            dueDate: '24',
-            amount: 150.0,
-            status: 'upcoming',
-            logo: '⚡',
-        },
-        {
-            name: 'Serenity Spa',
-            dueDate: '28',
-            amount: 40.0,
-            status: 'upcoming',
-            logo: '🧖‍♀️',
-        },
-        {
-            name: 'Platinum Gym',
-            dueDate: '01',
-            amount: 65.0,
-            status: 'paid',
-            logo: '💪',
-        },
-        {
-            name: 'Housing Rent',
-            dueDate: '05',
-            amount: 1200.0,
-            status: 'paid',
-            logo: '🏠',
-        },
-        {
-            name: 'Spotify Premium',
-            dueDate: '15',
-            amount: 12.99,
-            status: 'paid',
-            logo: '🎵',
-        },
-    ];
+    const [bills, setBills] = useState<RecurringBill[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // Calculate the total
-    const totalBills = bills.reduce((acc, bill) => acc + bill.amount, 0);
-    // Count how many are left to pay.
-    const pendingCount = bills.filter((b) => b.status === 'upcoming').length;
+    useEffect(() => {
+        const fetchBills = async () => {
+            try {
+                const response = await axios.get(
+                    'http://localhost/api/recurring-bills'
+                );
+                setBills(response.data);
+            } catch (error) {
+                console.error('Error fetching bills:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBills();
+    }, []);
+
+    // Calculations
+    const totalBills = bills.reduce(
+        (acc, bill) => acc + Number(bill.amount),
+        0
+    );
+    const totalPaid = bills
+        .filter((b) => b.status === 'paid')
+        .reduce((acc, b) => acc + Number(b.amount), 0);
+    const totalUpcoming = bills
+        .filter((b) => b.status === 'upcoming')
+        .reduce((acc, b) => acc + Number(b.amount), 0);
+
+    const countUpcoming = bills.filter((b) => b.status === 'upcoming').length;
+
+    if (loading) {
+        return (
+            <main className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
+                <Loader2 className="animate-spin text-gray-500" size={48} />
+            </main>
+        );
+    }
 
     return (
         <main className="min-h-screen bg-gray-50 p-8 pb-20">
@@ -53,8 +63,9 @@ export default function RecurringBillsPage() {
             </h1>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                {/* Left side: Summary of Monthly Impact */}
+                {/* Left Side: Summary Cards */}
                 <div className="xl:col-span-1 space-y-6">
+                    {/* Total Box */}
                     <div className="bg-gray-900 text-white p-6 rounded-xl shadow-lg">
                         <div className="flex items-center gap-4 mb-6">
                             <div className="p-3 bg-gray-800 rounded-full">
@@ -66,10 +77,14 @@ export default function RecurringBillsPage() {
                             Total estimates
                         </p>
                         <p className="text-4xl font-bold">
-                            €{totalBills.toFixed(2)}
+                            {new Intl.NumberFormat('en-IE', {
+                                style: 'currency',
+                                currency: 'EUR',
+                            }).format(totalBills)}
                         </p>
                     </div>
 
+                    {/* Summary Box */}
                     <div className="bg-white p-6 rounded-xl shadow-sm">
                         <h3 className="font-bold text-gray-900 mb-4">
                             Summary
@@ -77,66 +92,92 @@ export default function RecurringBillsPage() {
                         <p className="text-gray-500 text-sm mb-4">
                             You have{' '}
                             <span className="font-bold text-gray-900">
-                                {pendingCount} bills
+                                {countUpcoming} bills
                             </span>{' '}
                             upcoming this month.
                         </p>
                         <hr className="border-gray-100 my-4" />
-                        <div className="flex justify-between items-center text-sm">
-                            <span className="text-gray-500">Paid so far</span>
-                            <span className="font-bold text-green-600">
-                                €
-                                {bills
-                                    .filter((b) => b.status === 'paid')
-                                    .reduce((acc, b) => acc + b.amount, 0)
-                                    .toFixed(2)}
-                            </span>
+
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-500">
+                                    Paid so far
+                                </span>
+                                <span className="font-bold text-gray-900">
+                                    {new Intl.NumberFormat('en-IE', {
+                                        style: 'currency',
+                                        currency: 'EUR',
+                                    }).format(totalPaid)}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-500">Upcoming</span>
+                                <span className="font-bold text-gray-900">
+                                    {new Intl.NumberFormat('en-IE', {
+                                        style: 'currency',
+                                        currency: 'EUR',
+                                    }).format(totalUpcoming)}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Right side: Account List */}
+                {/* Right Side: Bills List */}
                 <div className="xl:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden">
                     <div className="p-6 border-b border-gray-100">
                         <h3 className="font-bold text-gray-900">Your Bills</h3>
                     </div>
                     <div>
-                        {bills.map((bill, index) => (
+                        {bills.map((bill) => (
                             <div
-                                key={index}
+                                key={bill.id}
                                 className={`
                                     flex items-center justify-between p-6 border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors
                                     ${
                                         bill.status === 'paid'
-                                            ? 'opacity-60'
+                                            ? 'opacity-60 grayscale-[0.5]'
                                             : ''
                                     }
                                 `}
                             >
                                 <div className="flex items-center gap-4">
+                                    {/* Logo / Icon */}
                                     <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl">
-                                        {bill.logo}
+                                        {bill.logo || '🧾'}
                                     </div>
+
                                     <div>
                                         <p className="font-bold text-gray-900">
                                             {bill.name}
                                         </p>
-                                        <p className="text-xs text-gray-500 flex items-center gap-1">
+                                        <div className="text-xs flex items-center gap-1 mt-1">
                                             {bill.status === 'paid' ? (
-                                                <span className="text-green-600 flex items-center gap-1">
+                                                <span className="text-green-600 font-bold flex items-center gap-1">
                                                     Paid{' '}
                                                     <CheckCircle2 size={12} />
                                                 </span>
                                             ) : (
-                                                <span className="text-orange-500 font-bold">
-                                                    Due on {bill.dueDate}th
+                                                <span className="text-orange-500 font-bold flex items-center gap-1">
+                                                    Due on {bill.due_day}th{' '}
+                                                    <AlertCircle size={12} />
                                                 </span>
                                             )}
-                                        </p>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="font-bold text-gray-900">
-                                    €{bill.amount.toFixed(2)}
+
+                                <div
+                                    className={`font-bold ${
+                                        bill.status === 'paid'
+                                            ? 'text-gray-900'
+                                            : 'text-orange-600'
+                                    }`}
+                                >
+                                    {new Intl.NumberFormat('en-IE', {
+                                        style: 'currency',
+                                        currency: 'EUR',
+                                    }).format(Number(bill.amount))}
                                 </div>
                             </div>
                         ))}
