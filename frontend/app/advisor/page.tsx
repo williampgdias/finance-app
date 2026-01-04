@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import { useState } from 'react';
 import axios from 'axios';
 import { Sparkles, Send, Loader2, Bot } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 export default function AdvisorPage() {
     const [question, setQuestion] = useState('');
@@ -51,7 +53,7 @@ export default function AdvisorPage() {
             </div>
 
             {/* Chat Area */}
-            <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden min-h-[400px] flex flex-col">
+            <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden min-h-100 flex flex-col">
                 {/* Answer Display Area */}
                 <div className="flex-1 p-8 bg-gray-50/50 overflow-y-auto">
                     {!answer && !loading && !error && (
@@ -71,14 +73,38 @@ export default function AdvisorPage() {
                     {answer && (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="flex gap-4">
-                                <div className="min-w-[40px] h-10 rounded-full bg-gray-900 flex items-center justify-center mt-1">
+                                <div className="min-w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center mt-1">
                                     <Sparkles
                                         className="text-yellow-400"
                                         size={20}
                                     />
                                 </div>
-                                <div className="bg-white p-6 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 text-gray-800 leading-relaxed whitespace-pre-line">
-                                    {answer}
+                                <div className="bg-white p-6 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 text-gray-800 leading-relaxed">
+                                    <ReactMarkdown
+                                        components={{
+                                            strong: ({ node, ...props }) => (
+                                                <span
+                                                    className="font-bold text-gray-900"
+                                                    {...props}
+                                                />
+                                            ),
+
+                                            ul: ({ node, ...props }) => (
+                                                <ul
+                                                    className="list-disc ml-4 space-y-1"
+                                                    {...props}
+                                                />
+                                            ),
+                                            ol: ({ node, ...props }) => (
+                                                <ol
+                                                    className="list-decimal ml-4 space-y-1"
+                                                    {...props}
+                                                />
+                                            ),
+                                        }}
+                                    >
+                                        {answer}
+                                    </ReactMarkdown>
                                 </div>
                             </div>
                         </div>
