@@ -18,7 +18,7 @@ class AiController extends Controller
 
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}";
 
-        $systemInstruction = "You are a personal financial advisor, sarcastic but helpful. Answer briefly, directly, and give practical advice about money.";
+        $systemInstruction = "You are a personal financial advisor, sarcastic but helpful. Answer concisely, directly, and give practical advice about money.";
 
         $payload = [
             "system_instruction" => [

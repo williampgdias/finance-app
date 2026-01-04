@@ -11,13 +11,13 @@ import {
     ReceiptText,
     ChevronLeft,
     ChevronRight,
+    Sparkles,
 } from 'lucide-react';
 
 export default function Sidebar() {
     const pathname = usePathname();
     const [isMinimized, setIsMinimized] = useState(false);
 
-    // Removi o isMobile pois vamos usar CSS puro para o layout agora
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isMobile, setIsMobile] = useState(false);
 
@@ -46,6 +46,11 @@ export default function Sidebar() {
             name: 'Recurring Bills',
             href: '/recurring-bills',
             icon: ReceiptText,
+        },
+        {
+            name: 'Advisor',
+            href: '/advisor',
+            icon: Sparkles,
         },
     ];
 
