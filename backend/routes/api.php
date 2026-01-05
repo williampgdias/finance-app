@@ -21,3 +21,4 @@ Route::get('/recurring-bills', [RecurringBillController::class, 'index']);
 Route::post('/pots', [PotController::class, 'store']);
 Route::post('/budgets', [BudgetController::class, 'store']);
 Route::post('/ai/ask', [AiController::class, 'ask']);
+Route::post('/transactions', [TransactionController::class, 'store']);
