@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Ellipsis, Loader2, Plus, X, ChevronRight, Trash2 } from 'lucide-react';
+import {
+    Ellipsis,
+    Loader2,
+    Plus,
+    X,
+    ChevronRight,
+    Trash2,
+    Pencil,
+} from 'lucide-react';
 
 interface Budget {
     id: number;
@@ -17,10 +25,11 @@ export default function BudgetsPage() {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
 
-    // State to find out which "Ellipsis" menu is open (by budget ID)
+    // Estado para controlar qual menu está aberto
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
-    // Form States
+    // Estados do Formulário
+    const [editingId, setEditingId] = useState<number | null>(null); // Null = Criando, Numero = Editando
     const [category, setCategory] = useState('');
     const [maximum, setMaximum] = useState('');
     const [theme, setTheme] = useState('#277C78');
@@ -33,6 +42,7 @@ export default function BudgetsPage() {
         '#C94736',
         '#826CB0',
     ];
+
     const [summary, setSummary] = useState({ totalLimit: 0, totalSpent: 0 });
 
     const fetchBudgets = async () => {
@@ -40,6 +50,7 @@ export default function BudgetsPage() {
             const response = await axios.get('http://localhost/api/budgets');
             const data: Budget[] = response.data;
             setBudgets(data);
+
             const totalLimit = data.reduce(
                 (acc, curr) => acc + Number(curr.maximum),
                 0
@@ -60,32 +71,59 @@ export default function BudgetsPage() {
         fetchBudgets();
     }, []);
 
-    const handleAddBudget = async (e: React.FormEvent) => {
+    // Preparar formulário para edição
+    const handleEditClick = (budget: Budget) => {
+        setEditingId(budget.id);
+        setCategory(budget.category);
+        setMaximum(budget.maximum.toString());
+        setTheme(budget.theme);
+        setOpenMenuId(null); // Fecha o menu
+        setShowForm(true); // Abre o modal
+    };
+
+    // Reseta o formulário
+    const resetForm = () => {
+        setEditingId(null);
+        setCategory('');
+        setMaximum('');
+        setTheme('#277C78');
+        setShowForm(false);
+    };
+
+    const handleSaveBudget = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!category || !maximum) return;
+
         try {
-            await axios.post('http://localhost/api/budgets', {
-                category,
-                maximum: parseFloat(maximum),
-                theme,
-            });
-            setCategory('');
-            setMaximum('');
-            setTheme('#277C78');
-            setShowForm(false);
+            if (editingId) {
+                // EDITAR (PUT)
+                await axios.put(`http://localhost/api/budgets/${editingId}`, {
+                    category,
+                    maximum: parseFloat(maximum),
+                    theme,
+                });
+            } else {
+                // CRIAR (POST)
+                await axios.post('http://localhost/api/budgets', {
+                    category,
+                    maximum: parseFloat(maximum),
+                    theme,
+                });
+            }
+
+            resetForm();
             fetchBudgets();
         } catch (error) {
             console.error(error);
-            alert('Error creating budget');
+            alert('Error saving budget');
         }
     };
 
-    // Delete Budget
     const handleDeleteBudget = async (id: number) => {
         if (!confirm('Delete this budget?')) return;
         try {
             await axios.delete(`http://localhost/api/budgets/${id}`);
-            setOpenMenuId(null); // Close the Menu
+            setOpenMenuId(null);
             fetchBudgets();
         } catch (error) {
             console.error(error);
@@ -105,7 +143,10 @@ export default function BudgetsPage() {
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Budgets</h1>
                 <button
-                    onClick={() => setShowForm(!showForm)}
+                    onClick={() => {
+                        if (showForm) resetForm();
+                        else setShowForm(true);
+                    }}
                     className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors flex items-center gap-2"
                 >
                     {showForm ? <X size={16} /> : <Plus size={16} />}
@@ -115,11 +156,10 @@ export default function BudgetsPage() {
 
             {showForm && (
                 <div className="bg-white p-6 rounded-xl shadow-sm mb-8 animate-in slide-in-from-top-4 max-w-2xl mx-auto border border-gray-100">
-                    {/* ... (The form remains the same; you can keep the previous code here if you only want to copy/paste the list below) ... */}
                     <h2 className="font-bold text-lg mb-6 text-gray-900">
-                        Create New Budget
+                        {editingId ? 'Edit Budget' : 'Create New Budget'}
                     </h2>
-                    <form onSubmit={handleAddBudget} className="space-y-4">
+                    <form onSubmit={handleSaveBudget} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 mb-1">
@@ -161,7 +201,7 @@ export default function BudgetsPage() {
                                         key={color}
                                         type="button"
                                         onClick={() => setTheme(color)}
-                                        className={`w-8 h-8 rounded-full ${
+                                        className={`w-8 h-8 rounded-full transition-transform ${
                                             theme === color
                                                 ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
                                                 : ''
@@ -176,7 +216,8 @@ export default function BudgetsPage() {
                                 type="submit"
                                 className="w-full bg-gray-900 text-white p-3 rounded-lg font-bold hover:bg-gray-800 flex justify-center items-center gap-2"
                             >
-                                Create Budget <ChevronRight size={16} />
+                                {editingId ? 'Save Changes' : 'Create Budget'}{' '}
+                                <ChevronRight size={16} />
                             </button>
                         </div>
                     </form>
@@ -184,33 +225,24 @@ export default function BudgetsPage() {
             )}
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {/* Chart Summary */}
-                <div className="bg-white p-8 rounded-xl shadow-sm flex flex-col items-center justify-center text-center h-full min-h-75">
-                    <div className="w-64 h-64 rounded-full border-32 border-gray-100 flex items-center justify-center relative">
-                        <div className="absolute inset-0 border-32 border-transparent border-t-gray-900 rounded-full rotate-45 opacity-20"></div>
+                {/* Chart Summary - Left Side */}
+                <div className="bg-white p-8 rounded-xl shadow-sm flex flex-col items-center justify-center text-center h-full min-h-[300px]">
+                    <div className="w-64 h-64 rounded-full border-[32px] border-gray-100 flex items-center justify-center relative">
+                        {/* Simples hack visual para o gráfico de donut */}
+                        <div className="absolute inset-0 border-[32px] border-transparent border-t-gray-900 rounded-full rotate-45 opacity-20"></div>
                         <div className="text-center z-10">
                             <p className="text-4xl font-bold text-gray-900">
-                                {new Intl.NumberFormat('en-IE', {
-                                    style: 'currency',
-                                    currency: 'EUR',
-                                    maximumFractionDigits: 0,
-                                }).format(summary.totalSpent)}
+                                €{summary.totalSpent.toFixed(0)}
                             </p>
                             <p className="text-sm text-gray-500 mt-1">
-                                of{' '}
-                                {new Intl.NumberFormat('en-IE', {
-                                    style: 'currency',
-                                    currency: 'EUR',
-                                    maximumFractionDigits: 0,
-                                }).format(summary.totalLimit)}{' '}
-                                limit
+                                of €{summary.totalLimit.toFixed(0)} limit
                             </p>
                         </div>
                     </div>
                     <h2 className="text-xl font-bold mt-8">Spending Summary</h2>
                 </div>
 
-                {/* Budget List */}
+                {/* Budget List - Right Side */}
                 <div className="flex flex-col gap-6">
                     {budgets.map((budget) => {
                         const percentage =
@@ -220,10 +252,10 @@ export default function BudgetsPage() {
                                 key={budget.id}
                                 className="bg-white p-6 rounded-xl shadow-sm relative"
                             >
-                                <div className="flex justify-between items-center mb-4 relative">
+                                <div className="flex justify-between items-center mb-4">
                                     <div className="flex items-center gap-3">
                                         <div
-                                            className={`w-4 h-4 rounded-full`}
+                                            className="w-4 h-4 rounded-full"
                                             style={{
                                                 backgroundColor: budget.theme,
                                             }}
@@ -233,7 +265,7 @@ export default function BudgetsPage() {
                                         </h3>
                                     </div>
 
-                                    {/* MENU */}
+                                    {/* OPTIONS MENU */}
                                     <div className="relative">
                                         <button
                                             onClick={() =>
@@ -243,23 +275,31 @@ export default function BudgetsPage() {
                                                         : budget.id
                                                 )
                                             }
-                                            className="text-gray-400 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                                            className="text-gray-400 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition"
                                         >
                                             <Ellipsis size={20} />
                                         </button>
 
-                                        {/* DROP DOWN MENU  */}
                                         {openMenuId === budget.id && (
-                                            <div className="absolute right-0 top-10 bg-white shadow-xl border border-gray-100 rounded-lg p-2 z-10 w-40 animate-in fade-in zoom-in-95 duration-200">
+                                            <div className="absolute right-0 mt-2 bg-white shadow-xl border border-gray-100 rounded-lg py-2 z-20 w-40 animate-in fade-in zoom-in-95 duration-200">
+                                                <button
+                                                    onClick={() =>
+                                                        handleEditClick(budget)
+                                                    }
+                                                    className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 font-medium"
+                                                >
+                                                    <Pencil size={14} /> Edit
+                                                    Budget
+                                                </button>
                                                 <button
                                                     onClick={() =>
                                                         handleDeleteBudget(
                                                             budget.id
                                                         )
                                                     }
-                                                    className="w-full text-left flex items-center gap-2 text-red-600 hover:bg-red-50 p-2 rounded-md text-sm font-bold"
+                                                    className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium"
                                                 >
-                                                    <Trash2 size={16} /> Delete
+                                                    <Trash2 size={14} /> Delete
                                                     Budget
                                                 </button>
                                             </div>
@@ -267,53 +307,45 @@ export default function BudgetsPage() {
                                     </div>
                                 </div>
 
-                                <div className="mb-4">
-                                    <p className="text-sm text-gray-500 mb-1">
-                                        Maximum of{' '}
-                                        {new Intl.NumberFormat('en-IE', {
-                                            style: 'currency',
-                                            currency: 'EUR',
-                                        }).format(budget.maximum)}
-                                    </p>
-                                    <div className="w-full h-8 bg-gray-50 rounded-lg p-1">
-                                        <div
-                                            className="h-full rounded-md transition-all duration-500 ease-out"
-                                            style={{
-                                                width: `${Math.min(
-                                                    percentage,
-                                                    100
-                                                )}%`,
-                                                backgroundColor: budget.theme,
-                                            }}
-                                        ></div>
-                                    </div>
+                                <p className="text-sm text-gray-500 mb-2">
+                                    Maximum of €
+                                    {Number(budget.maximum).toFixed(2)}
+                                </p>
+
+                                <div className="w-full h-8 bg-gray-100 rounded-lg p-1 mb-4">
+                                    <div
+                                        className="h-full rounded-md transition-all duration-500"
+                                        style={{
+                                            width: `${Math.min(
+                                                percentage,
+                                                100
+                                            )}%`,
+                                            backgroundColor: budget.theme,
+                                        }}
+                                    ></div>
                                 </div>
+
                                 <div className="flex justify-between items-center">
                                     <div
                                         className="w-1/2 border-l-4 pl-4"
                                         style={{ borderColor: budget.theme }}
                                     >
-                                        <p className="text-xs text-gray-500">
+                                        <p className="text-xs text-gray-500 mb-1">
                                             Spent
                                         </p>
                                         <p className="font-bold text-gray-900">
-                                            {new Intl.NumberFormat('en-IE', {
-                                                style: 'currency',
-                                                currency: 'EUR',
-                                            }).format(budget.current)}
+                                            €{budget.current.toFixed(2)}
                                         </p>
                                     </div>
                                     <div className="w-1/2 border-l-4 pl-4 border-gray-200">
-                                        <p className="text-xs text-gray-500">
+                                        <p className="text-xs text-gray-500 mb-1">
                                             Remaining
                                         </p>
                                         <p className="font-bold text-gray-900">
-                                            {new Intl.NumberFormat('en-IE', {
-                                                style: 'currency',
-                                                currency: 'EUR',
-                                            }).format(
+                                            €
+                                            {(
                                                 budget.maximum - budget.current
-                                            )}
+                                            ).toFixed(2)}
                                         </p>
                                     </div>
                                 </div>

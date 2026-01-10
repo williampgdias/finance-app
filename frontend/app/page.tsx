@@ -5,7 +5,8 @@ import axios from 'axios';
 import { Transaction } from '@/types/Transaction';
 import SummaryCards from '@/components/SummaryCards';
 import RecentTransactions from '@/components/RecentTransactions';
-import BudgetsChart from '@/components/BudgetsChart';
+// import BudgetsChart from '@/components/BudgetsChart';
+import HomeBudgets from '@/components/HomeBudgets';
 import PotsWidget from '@/components/PotsWidget';
 
 export default function Home() {
@@ -51,7 +52,8 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <PotsWidget />
 
-                <BudgetsChart transactions={transactions} />
+                {/* <BudgetsChart transactions={transactions} /> */}
+                <HomeBudgets />
                 <div className="col-span-1 lg:col-span-2">
                     <RecentTransactions transactions={transactions} />
                 </div>

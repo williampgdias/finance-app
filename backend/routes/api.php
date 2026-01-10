@@ -25,6 +25,7 @@ Route::post('/transactions', [TransactionController::class, 'store']);
 
 Route::put('/transactions/{id}', [TransactionController::class, 'update']);
 Route::put('/pots/{id}', [PotController::class, 'update']);
+Route::put('/budgets/{id}', [BudgetController::class, 'update']);
 
 Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
 Route::delete('/budgets/{id}', [BudgetController::class, 'destroy']);

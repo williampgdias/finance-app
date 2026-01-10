@@ -48,4 +48,23 @@ class BudgetController extends Controller
 
         return response()->noContent();
     }
+
+    public function update(Request $request, $id)
+    {
+        $budget = Budget::findOrFail($id);
+
+        if (!$budget) {
+            return response()->json(['message' => 'Budget not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'category' => 'required|string|max:255',
+            'maximum' => 'required|numeric',
+            'theme' => 'nullable|string',
+        ]);
+
+        $budget->update($validated);
+
+        return response()->json($budget);
+    }
 }
