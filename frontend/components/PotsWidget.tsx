@@ -1,17 +1,46 @@
 'use client';
 
-import { PiggyBank } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { PiggyBank, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-export default function PotsWidget() {
-    const pots = [
-        { name: 'Savings', amount: 159.9, color: '#277C78' },
-        { name: 'Concert Ticket', amount: 62.0, color: '#626070' },
-        { name: 'Gift', amount: 40.0, color: '#82C9D7' },
-        { name: 'New Laptop', amount: 10.0, color: '#F2CDAC' },
-    ];
+interface Pot {
+    id: number;
+    name: string;
+    total: number;
+    theme: string;
+}
 
-    const totalSaved = pots.reduce((acc, pot) => acc + pot.amount, 0);
+export default function PotsWidget() {
+    const [pots, setPots] = useState<Pot[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPots = async () => {
+            try {
+                const response = await axios.get('http://localhost/api/pots');
+                // We only took the first 4 to fit in the square.
+                setPots(response.data.slice(0, 4));
+            } catch (error) {
+                console.error('Error fetching pots:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPots();
+    }, []);
+
+    const totalSaved = pots.reduce((acc, pot) => acc + Number(pot.total), 0);
+
+    if (loading) {
+        return (
+            <div className="bg-white p-8 rounded-xl shadow-sm h-full flex items-center justify-center">
+                <Loader2 className="animate-spin text-gray-400" />
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white p-8 rounded-xl shadow-sm h-full flex flex-col">
@@ -25,36 +54,48 @@ export default function PotsWidget() {
                 </Link>
             </div>
 
-            <div className="flex f;ex=col md:flex-row gap-6 items-center">
+            <div className="flex flex-col md:flex-row gap-6 items-center">
                 {/* Left Side */}
-                <div className="bg-beige-100 p-4 rounded-xl flex items-center gap-4 w-full md:w-5/12">
+                <div className="bg-beige-100 p-4 rounded-xl flex items-center gap-4 w-full md:w-5/12 bg-gray-50">
                     <div className="bg-gray-900 text-white p-3 rounded-full">
                         <PiggyBank size={24} />
                     </div>
                     <div>
                         <p className="text-gray-500 text-sm">Total Saved</p>
                         <p className="text-2xl font-bold text-gray-900">
-                            €{totalSaved.toFixed(2)}
+                            {new Intl.NumberFormat('en-IE', {
+                                style: 'currency',
+                                currency: 'EUR',
+                            }).format(totalSaved)}
                         </p>
                     </div>
                 </div>
 
                 {/* Right Side */}
                 <div className="w-full md:w-7/12 grid grid-cols-2 gap-4">
-                    {pots.map((pot) => (
-                        <div
-                            key={pot.name}
-                            className="flex flex-col gap-1 border-l-4 pl-4"
-                            style={{ borderColor: pot.color }}
-                        >
-                            <span className="text-xs text-gray-500">
-                                {pot.name}
-                            </span>
-                            <span className="font-bold text-gray-900 text-sm">
-                                €{pot.amount.toFixed(2)}
-                            </span>
-                        </div>
-                    ))}
+                    {pots.length === 0 ? (
+                        <p className="text-xs text-gray-400 col-span-2">
+                            No pots created yet.
+                        </p>
+                    ) : (
+                        pots.map((pot) => (
+                            <div
+                                key={pot.id}
+                                className="flex flex-col gap-1 border-l-4 pl-4"
+                                style={{ borderColor: pot.theme }}
+                            >
+                                <span className="text-xs text-gray-500 truncate">
+                                    {pot.name}
+                                </span>
+                                <span className="font-bold text-gray-900 text-sm">
+                                    {new Intl.NumberFormat('en-IE', {
+                                        style: 'currency',
+                                        currency: 'EUR',
+                                    }).format(Number(pot.total))}
+                                </span>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
         </div>
