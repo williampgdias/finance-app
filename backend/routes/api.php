@@ -24,6 +24,8 @@ Route::post('/ai/ask', [AiController::class, 'ask']);
 Route::post('/transactions', [TransactionController::class, 'store']);
 
 Route::put('/transactions/{id}', [TransactionController::class, 'update']);
+Route::put('/pots/{id}', [PotController::class, 'update']);
 
 Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
 Route::delete('/budgets/{id}', [BudgetController::class, 'destroy']);
+Route::delete('/pots/{id}', [PotController::class, 'destroy']);
