@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Ellipsis, Loader2, Plus } from 'lucide-react';
+import { Ellipsis, Loader2, Plus, X, ChevronRight, Trash2 } from 'lucide-react';
 
 interface Budget {
     id: number;
@@ -15,67 +15,179 @@ interface Budget {
 export default function BudgetsPage() {
     const [budgets, setBudgets] = useState<Budget[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showForm, setShowForm] = useState(false);
 
-    // State for the Summary Chart
-    const [summary, setSummary] = useState({
-        totalLimit: 0,
-        totalSpent: 0,
-    });
+    // State to find out which "Ellipsis" menu is open (by budget ID)
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+
+    // Form States
+    const [category, setCategory] = useState('');
+    const [maximum, setMaximum] = useState('');
+    const [theme, setTheme] = useState('#277C78');
+
+    const themeColors = [
+        '#277C78',
+        '#82C9D7',
+        '#F2CDAC',
+        '#626070',
+        '#C94736',
+        '#826CB0',
+    ];
+    const [summary, setSummary] = useState({ totalLimit: 0, totalSpent: 0 });
+
+    const fetchBudgets = async () => {
+        try {
+            const response = await axios.get('http://localhost/api/budgets');
+            const data: Budget[] = response.data;
+            setBudgets(data);
+            const totalLimit = data.reduce(
+                (acc, curr) => acc + Number(curr.maximum),
+                0
+            );
+            const totalSpent = data.reduce(
+                (acc, curr) => acc + Number(curr.current),
+                0
+            );
+            setSummary({ totalLimit, totalSpent });
+        } catch (error) {
+            console.error('Error fetching budgets:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchBudgets = async () => {
-            try {
-                const response = await axios.get(
-                    'http://localhost/api/budgets'
-                );
-                const data: Budget[] = response.data;
-
-                setBudgets(data);
-
-                // Calculate Totals for the Summary Pie Chart
-                const totalLimit = data.reduce(
-                    (acc, curr) => acc + Number(curr.maximum),
-                    0
-                );
-                const totalSpent = data.reduce(
-                    (acc, curr) => acc + Number(curr.current),
-                    0
-                );
-
-                setSummary({ totalLimit, totalSpent });
-            } catch (error) {
-                console.error('Error fetching budgets:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchBudgets();
     }, []);
 
-    if (loading) {
+    const handleAddBudget = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!category || !maximum) return;
+        try {
+            await axios.post('http://localhost/api/budgets', {
+                category,
+                maximum: parseFloat(maximum),
+                theme,
+            });
+            setCategory('');
+            setMaximum('');
+            setTheme('#277C78');
+            setShowForm(false);
+            fetchBudgets();
+        } catch (error) {
+            console.error(error);
+            alert('Error creating budget');
+        }
+    };
+
+    // Delete Budget
+    const handleDeleteBudget = async (id: number) => {
+        if (!confirm('Delete this budget?')) return;
+        try {
+            await axios.delete(`http://localhost/api/budgets/${id}`);
+            setOpenMenuId(null); // Close the Menu
+            fetchBudgets();
+        } catch (error) {
+            console.error(error);
+            alert('Error deleting budget');
+        }
+    };
+
+    if (loading)
         return (
-            <main className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
-                <Loader2 className="animate-spin text-gray-500" size={48} />
+            <main className="p-8">
+                <Loader2 className="animate-spin" />
             </main>
         );
-    }
 
     return (
         <main className="min-h-screen bg-gray-50 p-8 pb-20">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Budgets</h1>
-                <button className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors flex items-center gap-2">
-                    <Plus size={16} />+ Add New Budget
+                <button
+                    onClick={() => setShowForm(!showForm)}
+                    className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors flex items-center gap-2"
+                >
+                    {showForm ? <X size={16} /> : <Plus size={16} />}
+                    {showForm ? 'Cancel' : 'Add New Budget'}
                 </button>
             </div>
 
+            {showForm && (
+                <div className="bg-white p-6 rounded-xl shadow-sm mb-8 animate-in slide-in-from-top-4 max-w-2xl mx-auto border border-gray-100">
+                    {/* ... (The form remains the same; you can keep the previous code here if you only want to copy/paste the list below) ... */}
+                    <h2 className="font-bold text-lg mb-6 text-gray-900">
+                        Create New Budget
+                    </h2>
+                    <form onSubmit={handleAddBudget} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 mb-1">
+                                    Category Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={category}
+                                    onChange={(e) =>
+                                        setCategory(e.target.value)
+                                    }
+                                    className="w-full p-3 border border-gray-200 rounded-lg text-gray-900"
+                                    placeholder="e.g. Groceries"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 mb-1">
+                                    Maximum Spend (€)
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={maximum}
+                                    onChange={(e) => setMaximum(e.target.value)}
+                                    className="w-full p-3 border border-gray-200 rounded-lg text-gray-900"
+                                    placeholder="e.g. 200.00"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 mb-2">
+                                Theme Color
+                            </label>
+                            <div className="flex gap-3">
+                                {themeColors.map((color) => (
+                                    <button
+                                        key={color}
+                                        type="button"
+                                        onClick={() => setTheme(color)}
+                                        className={`w-8 h-8 rounded-full ${
+                                            theme === color
+                                                ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
+                                                : ''
+                                        }`}
+                                        style={{ backgroundColor: color }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="pt-2">
+                            <button
+                                type="submit"
+                                className="w-full bg-gray-900 text-white p-3 rounded-lg font-bold hover:bg-gray-800 flex justify-center items-center gap-2"
+                            >
+                                Create Budget <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {/* Left side: Summary Chart */}
-                <div className="bg-white p-8 rounded-xl shadow-sm flex flex-col items-center justify-center text-center h-full min-h-72">
+                {/* Chart Summary */}
+                <div className="bg-white p-8 rounded-xl shadow-sm flex flex-col items-center justify-center text-center h-full min-h-75">
                     <div className="w-64 h-64 rounded-full border-32 border-gray-100 flex items-center justify-center relative">
                         <div className="absolute inset-0 border-32 border-transparent border-t-gray-900 rounded-full rotate-45 opacity-20"></div>
-
                         <div className="text-center z-10">
                             <p className="text-4xl font-bold text-gray-900">
                                 {new Intl.NumberFormat('en-IE', {
@@ -98,19 +210,17 @@ export default function BudgetsPage() {
                     <h2 className="text-xl font-bold mt-8">Spending Summary</h2>
                 </div>
 
-                {/* Right Side: Budget List */}
+                {/* Budget List */}
                 <div className="flex flex-col gap-6">
                     {budgets.map((budget) => {
-                        const maximum = Number(budget.maximum);
-                        const current = Number(budget.current);
-                        const percentage = (current / maximum) * 100;
-
+                        const percentage =
+                            (budget.current / budget.maximum) * 100;
                         return (
                             <div
                                 key={budget.id}
                                 className="bg-white p-6 rounded-xl shadow-sm relative"
                             >
-                                <div className="flex justify-between items-center mb-4">
+                                <div className="flex justify-between items-center mb-4 relative">
                                     <div className="flex items-center gap-3">
                                         <div
                                             className={`w-4 h-4 rounded-full`}
@@ -122,9 +232,39 @@ export default function BudgetsPage() {
                                             {budget.category}
                                         </h3>
                                     </div>
-                                    <button className="text-gray-400 hover:text-gray-900">
-                                        <Ellipsis size={20} />
-                                    </button>
+
+                                    {/* MENU */}
+                                    <div className="relative">
+                                        <button
+                                            onClick={() =>
+                                                setOpenMenuId(
+                                                    openMenuId === budget.id
+                                                        ? null
+                                                        : budget.id
+                                                )
+                                            }
+                                            className="text-gray-400 hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                                        >
+                                            <Ellipsis size={20} />
+                                        </button>
+
+                                        {/* DROP DOWN MENU  */}
+                                        {openMenuId === budget.id && (
+                                            <div className="absolute right-0 top-10 bg-white shadow-xl border border-gray-100 rounded-lg p-2 z-10 w-40 animate-in fade-in zoom-in-95 duration-200">
+                                                <button
+                                                    onClick={() =>
+                                                        handleDeleteBudget(
+                                                            budget.id
+                                                        )
+                                                    }
+                                                    className="w-full text-left flex items-center gap-2 text-red-600 hover:bg-red-50 p-2 rounded-md text-sm font-bold"
+                                                >
+                                                    <Trash2 size={16} /> Delete
+                                                    Budget
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="mb-4">
@@ -133,13 +273,9 @@ export default function BudgetsPage() {
                                         {new Intl.NumberFormat('en-IE', {
                                             style: 'currency',
                                             currency: 'EUR',
-                                        }).format(maximum)}
+                                        }).format(budget.maximum)}
                                     </p>
-
-                                    <div
-                                        className="w-full h-8 bg-beige-100 rounded-lg p-1 bg-opacity-50"
-                                        style={{ backgroundColor: '#F8F4F0' }}
-                                    >
+                                    <div className="w-full h-8 bg-gray-50 rounded-lg p-1">
                                         <div
                                             className="h-full rounded-md transition-all duration-500 ease-out"
                                             style={{
@@ -152,7 +288,6 @@ export default function BudgetsPage() {
                                         ></div>
                                     </div>
                                 </div>
-
                                 <div className="flex justify-between items-center">
                                     <div
                                         className="w-1/2 border-l-4 pl-4"
@@ -165,7 +300,7 @@ export default function BudgetsPage() {
                                             {new Intl.NumberFormat('en-IE', {
                                                 style: 'currency',
                                                 currency: 'EUR',
-                                            }).format(current)}
+                                            }).format(budget.current)}
                                         </p>
                                     </div>
                                     <div className="w-1/2 border-l-4 pl-4 border-gray-200">
@@ -176,7 +311,9 @@ export default function BudgetsPage() {
                                             {new Intl.NumberFormat('en-IE', {
                                                 style: 'currency',
                                                 currency: 'EUR',
-                                            }).format(maximum - current)}
+                                            }).format(
+                                                budget.maximum - budget.current
+                                            )}
                                         </p>
                                     </div>
                                 </div>

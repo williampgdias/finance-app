@@ -9,7 +9,18 @@ class BudgetController extends Controller
 {
     public function index()
     {
-        return Budget::all();
+
+        $budgets = Budget::all();
+
+        foreach ($budgets as $budget) {
+            $spent = \App\Models\Transaction::where('category', $budget->category)
+                ->where('amount', '<', 0)
+                ->sum('amount');
+
+            $budget->current = abs($spent);
+        }
+
+        return $budgets;
     }
 
     public function store(Request $request)
@@ -28,5 +39,13 @@ class BudgetController extends Controller
         ]);
 
         return response()->json($budget, 201);
+    }
+
+    public function destroy($id)
+    {
+        $budget = Budget::findOrFail($id);
+        $budget->delete();
+
+        return response()->noContent();
     }
 }
