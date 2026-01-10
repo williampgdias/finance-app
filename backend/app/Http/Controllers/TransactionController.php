@@ -22,6 +22,8 @@ class TransactionController extends Controller
             'recurring' => 'boolean'
         ]);
 
+        $validated['is_income'] = $validated['amount'] > 0;
+
         $validated['avatar'] = 'https://ui-avatars.com/api/?name=' . urlencode($validated['name']) . '&background=random';
 
         $transaction = Transaction::create($validated);
@@ -40,6 +42,8 @@ class TransactionController extends Controller
             'date' => 'required|date',
             'recurring' => 'boolean'
         ]);
+
+        $validated['is_income'] = $validated['amount'] > 0;
 
         $validated['avatar'] = 'https://ui-avatars.com/api/?name=' . urlencode($validated['name']) . '&background=random';
 

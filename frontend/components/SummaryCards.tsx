@@ -18,7 +18,7 @@ export default function SummaryCards({ transactions }: SummaryCardsProps) {
         .reduce((acc, t) => acc + Number(t.amount), 0);
 
     // Calculate Current Balance (Income - Expenses)
-    const balance = income - expenses;
+    const balance = income + expenses;
 
     // Helper function to formate currency (€)
     const formatCurrency = (value: number) => {
