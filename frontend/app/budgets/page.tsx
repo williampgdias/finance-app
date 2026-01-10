@@ -11,6 +11,7 @@ import {
     Trash2,
     Pencil,
 } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface Budget {
     id: number;
@@ -25,11 +26,10 @@ export default function BudgetsPage() {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
 
-    // Estado para controlar qual menu está aberto
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
     // Estados do Formulário
-    const [editingId, setEditingId] = useState<number | null>(null); // Null = Criando, Numero = Editando
+    const [editingId, setEditingId] = useState<number | null>(null);
     const [category, setCategory] = useState('');
     const [maximum, setMaximum] = useState('');
     const [theme, setTheme] = useState('#277C78');
@@ -41,6 +41,8 @@ export default function BudgetsPage() {
         '#626070',
         '#C94736',
         '#826CB0',
+        '#AF81BA',
+        '#BE6C49',
     ];
 
     const [summary, setSummary] = useState({ totalLimit: 0, totalSpent: 0 });
@@ -71,17 +73,15 @@ export default function BudgetsPage() {
         fetchBudgets();
     }, []);
 
-    // Preparar formulário para edição
     const handleEditClick = (budget: Budget) => {
         setEditingId(budget.id);
         setCategory(budget.category);
         setMaximum(budget.maximum.toString());
         setTheme(budget.theme);
-        setOpenMenuId(null); // Fecha o menu
-        setShowForm(true); // Abre o modal
+        setOpenMenuId(null);
+        setShowForm(true);
     };
 
-    // Reseta o formulário
     const resetForm = () => {
         setEditingId(null);
         setCategory('');
@@ -94,16 +94,25 @@ export default function BudgetsPage() {
         e.preventDefault();
         if (!category || !maximum) return;
 
+        const colorInUse = budgets.some(
+            (b) => b.theme === theme && b.id !== editingId
+        );
+
+        if (colorInUse) {
+            alert(
+                'This color is already used in another budget! Please choose a unique color.'
+            );
+            return;
+        }
+
         try {
             if (editingId) {
-                // EDITAR (PUT)
                 await axios.put(`http://localhost/api/budgets/${editingId}`, {
                     category,
                     maximum: parseFloat(maximum),
                     theme,
                 });
             } else {
-                // CRIAR (POST)
                 await axios.post('http://localhost/api/budgets', {
                     category,
                     maximum: parseFloat(maximum),
@@ -130,6 +139,14 @@ export default function BudgetsPage() {
             alert('Error deleting budget');
         }
     };
+
+    const chartData = budgets
+        .map((b) => ({
+            name: b.category,
+            value: Number(b.current),
+            fill: b.theme,
+        }))
+        .filter((item) => item.value > 0);
 
     if (loading)
         return (
@@ -195,21 +212,45 @@ export default function BudgetsPage() {
                             <label className="block text-xs font-bold text-gray-500 mb-2">
                                 Theme Color
                             </label>
-                            <div className="flex gap-3">
-                                {themeColors.map((color) => (
-                                    <button
-                                        key={color}
-                                        type="button"
-                                        onClick={() => setTheme(color)}
-                                        className={`w-8 h-8 rounded-full transition-transform ${
-                                            theme === color
-                                                ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
-                                                : ''
-                                        }`}
-                                        style={{ backgroundColor: color }}
-                                    />
-                                ))}
+                            <div className="flex gap-3 flex-wrap">
+                                {themeColors.map((color) => {
+                                    const isUsed = budgets.some(
+                                        (b) =>
+                                            b.theme === color &&
+                                            b.id !== editingId
+                                    );
+
+                                    return (
+                                        <button
+                                            key={color}
+                                            type="button"
+                                            onClick={() =>
+                                                !isUsed && setTheme(color)
+                                            }
+                                            disabled={isUsed}
+                                            className={`w-8 h-8 rounded-full transition-all relative ${
+                                                theme === color
+                                                    ? 'ring-2 ring-offset-2 ring-gray-900 scale-110'
+                                                    : ''
+                                            } ${
+                                                isUsed
+                                                    ? 'opacity-20 cursor-not-allowed'
+                                                    : 'hover:scale-110'
+                                            }`}
+                                            style={{ backgroundColor: color }}
+                                        >
+                                            {isUsed && (
+                                                <span className="absolute inset-0 flex items-center justify-center text-white text-xs">
+                                                    ✕
+                                                </span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
+                            <p className="text-xs text-gray-400 mt-2">
+                                Colors already in use are disabled.
+                            </p>
                         </div>
                         <div className="pt-2">
                             <button
@@ -225,12 +266,52 @@ export default function BudgetsPage() {
             )}
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {/* Chart Summary - Left Side */}
-                <div className="bg-white p-8 rounded-xl shadow-sm flex flex-col items-center justify-center text-center h-full min-h-[300px]">
-                    <div className="w-64 h-64 rounded-full border-[32px] border-gray-100 flex items-center justify-center relative">
-                        {/* Simples hack visual para o gráfico de donut */}
-                        <div className="absolute inset-0 border-[32px] border-transparent border-t-gray-900 rounded-full rotate-45 opacity-20"></div>
-                        <div className="text-center z-10">
+                {/* DYNAMIC CHART */}
+                <div className="bg-white p-8 rounded-xl shadow-sm flex flex-col items-center justify-center text-center h-full min-h-[350px] relative">
+                    <div className="w-full h-64 relative">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={
+                                        chartData.length > 0
+                                            ? chartData
+                                            : [{ name: 'Empty', value: 1 }]
+                                    }
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={80}
+                                    outerRadius={100}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                    startAngle={90}
+                                    endAngle={-270}
+                                >
+                                    {chartData.length > 0 ? (
+                                        chartData.map((entry, index) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={entry.fill}
+                                                strokeWidth={0}
+                                            />
+                                        ))
+                                    ) : (
+                                        <Cell fill="#f3f4f6" strokeWidth={0} />
+                                    )}
+                                </Pie>
+                                <Tooltip
+                                    formatter={(value: number) =>
+                                        `€${value.toFixed(2)}`
+                                    }
+                                    contentStyle={{
+                                        borderRadius: '8px',
+                                        border: 'none',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                    }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                             <p className="text-4xl font-bold text-gray-900">
                                 €{summary.totalSpent.toFixed(0)}
                             </p>
@@ -239,10 +320,13 @@ export default function BudgetsPage() {
                             </p>
                         </div>
                     </div>
-                    <h2 className="text-xl font-bold mt-8">Spending Summary</h2>
+
+                    <h2 className="text-xl font-bold mt-4 text-gray-900">
+                        Spending Summary
+                    </h2>
                 </div>
 
-                {/* Budget List - Right Side */}
+                {/* Budget List */}
                 <div className="flex flex-col gap-6">
                     {budgets.map((budget) => {
                         const percentage =
@@ -265,7 +349,6 @@ export default function BudgetsPage() {
                                         </h3>
                                     </div>
 
-                                    {/* OPTIONS MENU */}
                                     <div className="relative">
                                         <button
                                             onClick={() =>
@@ -334,7 +417,7 @@ export default function BudgetsPage() {
                                             Spent
                                         </p>
                                         <p className="font-bold text-gray-900">
-                                            €{budget.current.toFixed(2)}
+                                            €{Number(budget.current).toFixed(2)}
                                         </p>
                                     </div>
                                     <div className="w-1/2 border-l-4 pl-4 border-gray-200">
@@ -344,7 +427,8 @@ export default function BudgetsPage() {
                                         <p className="font-bold text-gray-900">
                                             €
                                             {(
-                                                budget.maximum - budget.current
+                                                Number(budget.maximum) -
+                                                Number(budget.current)
                                             ).toFixed(2)}
                                         </p>
                                     </div>
