@@ -70,11 +70,17 @@ export default function TransactionsPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newName || !newAmount) return;
+
+        let cleanAmount = newAmount.toString().replace(',', '.').trim();
+
+        if (isNaN(Number(cleanAmount))) {
+            alert('Please enter a valid value (use a period or comma).');
+            return;
+        }
 
         const payload = {
             name: newName,
-            amount: parseFloat(newAmount),
+            amount: Number(cleanAmount),
             category: newCategory,
             date: new Date().toISOString().split('T')[0],
             recurring: false,
@@ -98,9 +104,18 @@ export default function TransactionsPage() {
             setEditingId(null);
             setShowForm(false);
             fetchTransactions();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert('Error saving transaction');
+
+            if (
+                error.response &&
+                error.response.data &&
+                error.response.data.message
+            ) {
+                alert(`Server Error: ${error.response.data.message}`);
+            } else {
+                alert('Error saving transaction');
+            }
         }
     };
 

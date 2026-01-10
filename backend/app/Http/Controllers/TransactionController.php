@@ -36,7 +36,8 @@ class TransactionController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'amount' => 'required|numeric',
-            'category' => 'required|date',
+            'category' => 'required|string',
+            'date' => 'required|date',
             'recurring' => 'boolean'
         ]);
 
