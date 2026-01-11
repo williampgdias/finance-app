@@ -65,7 +65,7 @@ export default function BudgetsChart({ transactions }: BudgetsChartProps) {
                             ))}
                         </Pie>
                         <Tooltip
-                            formatter={(value: number) => formatCurrency(value)}
+                            formatter={(value: any) => formatCurrency(value)}
                             contentStyle={{
                                 borderRadius: '12px',
                                 border: 'none',
