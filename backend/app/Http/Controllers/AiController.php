@@ -16,9 +16,11 @@ class AiController extends Controller
     {
         $request->validate([
             'question' => 'required|string|max:1000',
+            'history' => 'nullable|array',
         ]);
 
         $userQuestion = $request->input('question');
+        $chatHistory = $request->input('history', []);
         $apiKey = env('GEMINI_API_KEY');
 
         $transactions = Transaction::latest()->take(30)->get();
@@ -54,21 +56,35 @@ class AiController extends Controller
 
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}";
 
-        $systemInstruction = "You are a personal financial advisor, sarcastic but helpful.
-        Answer concisely, directly, and give practical advice about money.
-        ALWAYS use the provided financial data to answer. If the user asks if they can afford something, check their balance and bills first.
+        $systemInstruction = "You are an expert financial mentor, empathetic and highly knowledgeable.
+        Your goal is to educate the user, helping them understand how to invest, save, and manage their money better.
+        Be professional, friendly, and encouraging. Never be sarcastic.
+        Explain complex financial concepts in simple terms.
+        Always look at the provided financial data (balance, bills, budgets) to give concrete, personalized advice.
+        If the user is struggling, offer supportive strategies.
 
         $context";
+
+        $contents = [];
+
+        foreach ($chatHistory as $msg) {
+            $contents[] = [
+                "role" => $msg['role'] === 'user' ? 'user' : 'model',
+                "parts" => [["text" => $msg['content']]]
+            ];
+        }
+
+        $contents[] = [
+            "role" => "user",
+            "parts" => [["text" => $userQuestion]]
+        ];
 
         $payload = [
             "system_instruction" => [
                 "parts" => [["text" => $systemInstruction]]
             ],
-            "contents" => [
-                [
-                    "parts" => [["text" => $userQuestion]]
-                ]
-            ]
+            "contents" => $contents
+
         ];
 
         $response = Http::withHeaders([
