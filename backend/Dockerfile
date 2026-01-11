@@ -1,9 +1,8 @@
-
 FROM php:8.4-apache
 
 RUN apt-get update && apt-get install -y \
-libpng-dev \
-libonig-dev \
+    libpng-dev \
+    libonig-dev \
     libxml2-dev \
     zip \
     unzip \
@@ -15,6 +14,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 RUN a2enmod rewrite
+
+RUN a2dismod mpm_event && a2dismod mpm_worker && a2enmod mpm_prefork
 
 WORKDIR /var/www/html
 
