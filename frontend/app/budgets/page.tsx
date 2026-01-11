@@ -299,7 +299,7 @@ export default function BudgetsPage() {
                                     )}
                                 </Pie>
                                 <Tooltip
-                                    formatter={(value: number) =>
+                                    formatter={(value: any) =>
                                         `€${value.toFixed(2)}`
                                     }
                                     contentStyle={{
