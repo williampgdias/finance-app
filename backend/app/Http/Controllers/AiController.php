@@ -21,7 +21,7 @@ class AiController extends Controller
         $userQuestion = $request->input('question');
         $apiKey = env('GEMINI_API_KEY');
 
-        $transactions = Transaction::latest()->take(5)->get();
+        $transactions = Transaction::latest()->take(30)->get();
         $balance = Transaction::sum('amount');
 
         $budgets = Budget::all();

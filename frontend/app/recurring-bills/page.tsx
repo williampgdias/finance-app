@@ -396,7 +396,7 @@ export default function RecurringBillsPage() {
                 </div>
 
                 {/* Right Column: Interactive Bills List */}
-                <div className="xl:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[500px] border border-gray-100">
+                <div className="xl:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden flex flex-col min-h-125 border border-gray-100">
                     {/* List Controls: Search & Sort */}
                     <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div className="relative w-full sm:w-auto flex-1 max-w-md">
