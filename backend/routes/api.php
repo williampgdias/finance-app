@@ -22,11 +22,14 @@ Route::post('/pots', [PotController::class, 'store']);
 Route::post('/budgets', [BudgetController::class, 'store']);
 Route::post('/ai/ask', [AiController::class, 'ask']);
 Route::post('/transactions', [TransactionController::class, 'store']);
+Route::post('/recurring-bills', [RecurringBillController::class, 'store']);
 
 Route::put('/transactions/{id}', [TransactionController::class, 'update']);
 Route::put('/pots/{id}', [PotController::class, 'update']);
 Route::put('/budgets/{id}', [BudgetController::class, 'update']);
+Route::put('/recurring-bills/{id}', [RecurringBillController::class, 'update']);
 
 Route::delete('/transactions/{id}', [TransactionController::class, 'destroy']);
 Route::delete('/budgets/{id}', [BudgetController::class, 'destroy']);
 Route::delete('/pots/{id}', [PotController::class, 'destroy']);
+Route::delete('/recurring-bills/{id}', [RecurringBillController::class, 'destroy']);

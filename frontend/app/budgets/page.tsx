@@ -267,7 +267,7 @@ export default function BudgetsPage() {
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {/* DYNAMIC CHART */}
-                <div className="bg-white p-8 rounded-xl shadow-sm flex flex-col items-center justify-center text-center h-full min-h-[350px] relative">
+                <div className="bg-white p-8 rounded-xl shadow-sm flex flex-col items-center justify-center text-center h-full min-h-87.5 relative">
                     <div className="w-full h-64 relative">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
