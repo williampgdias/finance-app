@@ -21,7 +21,7 @@ return [
 
     'allowed_origins' => [
         'http://localhost:3000',
-        'https://finance-app-seven-khaki.vercel.app/',
+        'https://finance-app-seven-khaki.vercel.app',
     ],
 
     'allowed_origins_patterns' => [],
