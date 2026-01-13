@@ -20,10 +20,7 @@ export default function PotsWidget() {
         const fetchPots = async () => {
             try {
                 const response = await axios.get(
-                    `${
-                        process.env.NEXT_PUBLIC_API_URL ||
-                        'http://localhost/api'
-                    }/pots`
+                    'https://robust-delight-production.up.railway.app/api/pots'
                 );
                 // We only took the first 4 to fit in the square.
                 setPots(response.data.slice(0, 4));

@@ -64,14 +64,11 @@ export default function RecurringBillsPage() {
     const fetchBills = async () => {
         try {
             const response = await axios.get(
-                `${
-                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
-                }/recurring-bills`
+                'https://robust-delight-production.up.railway.app/api/recurring-bills'
             );
             setBills(response.data);
         } catch (error) {
             console.error('Failed to fetch recurring bills:', error);
-            // In a production app, we would trigger a toast notification here.
         } finally {
             setLoading(false);
         }
@@ -132,21 +129,15 @@ export default function RecurringBillsPage() {
             };
 
             if (editingId) {
-                // Update existing resource
+                // Update existing resource (PUT)
                 await axios.put(
-                    `${
-                        process.env.NEXT_PUBLIC_API_URL ||
-                        'http://localhost/api'
-                    }/recurring-bills/${editingId}`,
+                    `https://robust-delight-production.up.railway.app/api/recurring-bills/${editingId}`,
                     payload
                 );
             } else {
-                // Create new resource
+                // Create new resource (POST)
                 await axios.post(
-                    `${
-                        process.env.NEXT_PUBLIC_API_URL ||
-                        'http://localhost/api'
-                    }/recurring-bills`,
+                    'https://robust-delight-production.up.railway.app/api/recurring-bills',
                     payload
                 );
             }
@@ -169,9 +160,7 @@ export default function RecurringBillsPage() {
 
         try {
             await axios.delete(
-                `${
-                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
-                }/recurring-bills/${id}`
+                `https://robust-delight-production.up.railway.app/api/recurring-bills/${id}`
             );
             setOpenMenuId(null);
             fetchBills();

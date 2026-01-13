@@ -53,9 +53,7 @@ export default function PotsPage() {
     const fetchPots = async () => {
         try {
             const response = await axios.get(
-                `${
-                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
-                }/pots`
+                'https://robust-delight-production.up.railway.app/api/pots'
             );
             setPots(response.data);
         } catch (error) {
@@ -89,18 +87,12 @@ export default function PotsPage() {
         try {
             if (activePot && modalType === 'edit') {
                 await axios.put(
-                    `${
-                        process.env.NEXT_PUBLIC_API_URL ||
-                        'http://localhost/api'
-                    }/pots/${activePot.id}`,
+                    `https://robust-delight-production.up.railway.app/api/pots/${activePot.id}`,
                     payload
                 );
             } else {
                 await axios.post(
-                    `${
-                        process.env.NEXT_PUBLIC_API_URL ||
-                        'http://localhost/api'
-                    }/pots`,
+                    'https://robust-delight-production.up.railway.app/api/pots',
                     payload
                 );
             }
@@ -126,9 +118,7 @@ export default function PotsPage() {
 
         try {
             await axios.put(
-                `${
-                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
-                }/pots/${activePot.id}`,
+                `https://robust-delight-production.up.railway.app/api/pots/${activePot.id}`,
                 {
                     total: newTotal,
                 }
@@ -157,9 +147,7 @@ export default function PotsPage() {
         if (!confirm('Are you sure you want to delete this pot?')) return;
         try {
             await axios.delete(
-                `${
-                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
-                }/pots/${id}`
+                `https://robust-delight-production.up.railway.app/api/pots/${id}`
             );
             closeAllModals();
             fetchPots();

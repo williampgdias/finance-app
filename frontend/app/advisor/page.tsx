@@ -83,7 +83,7 @@ export default function AdvisorPage() {
         try {
             // API Call: Send current prompt AND history for context awareness
             const apiUrl =
-                process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api';
+                'https://robust-delight-production.up.railway.app/api';
             const response = await axios.post(`${apiUrl}/ai/ask`, {
                 question: userMessageContent,
                 history: newHistory, // Passing full context to the backend

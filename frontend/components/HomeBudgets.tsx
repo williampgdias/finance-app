@@ -21,12 +21,9 @@ export default function HomeBudgets() {
         const fetchBudgets = async () => {
             try {
                 const response = await axios.get(
-                    `${
-                        process.env.NEXT_PUBLIC_API_URL ||
-                        'http://localhost/api'
-                    }/budgets`
+                    'https://robust-delight-production.up.railway.app/api/budgets'
                 );
-                // Pega apenas os 4 primeiros para não poluir a home
+
                 setBudgets(response.data.slice(0, 4));
             } catch (error) {
                 console.error('Erro ao carregar budgets home', error);

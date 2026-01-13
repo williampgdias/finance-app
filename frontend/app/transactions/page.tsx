@@ -30,9 +30,7 @@ export default function TransactionsPage() {
     const fetchTransactions = async () => {
         try {
             const response = await axios.get(
-                `${
-                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
-                }/transactions`
+                'https://robust-delight-production.up.railway.app/api/transactions'
             );
             setTransactions(response.data);
         } catch (error) {
@@ -63,9 +61,7 @@ export default function TransactionsPage() {
 
         try {
             await axios.delete(
-                `${
-                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
-                }/transactions/${id}`
+                `https://robust-delight-production.up.railway.app/api/transactions/${id}`
             );
             fetchTransactions(); // Update the list
         } catch (error) {
@@ -96,19 +92,13 @@ export default function TransactionsPage() {
             if (editingId) {
                 // EDIT MODE (PUT)
                 await axios.put(
-                    `${
-                        process.env.NEXT_PUBLIC_API_URL ||
-                        'http://localhost/api'
-                    }/transactions/${editingId}`,
+                    `https://robust-delight-production.up.railway.app/api/transactions/${editingId}`,
                     payload
                 );
             } else {
                 // CREATION MODE (POST)
                 await axios.post(
-                    `${
-                        process.env.NEXT_PUBLIC_API_URL ||
-                        'http://localhost/api'
-                    }/transactions`,
+                    'https://robust-delight-production.up.railway.app/api/transactions',
                     payload
                 );
             }

@@ -50,9 +50,7 @@ export default function BudgetsPage() {
     const fetchBudgets = async () => {
         try {
             const response = await axios.get(
-                `${
-                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
-                }/budgets`
+                'https://robust-delight-production.up.railway.app/api/budgets'
             );
             const data: Budget[] = response.data;
             setBudgets(data);
@@ -112,10 +110,7 @@ export default function BudgetsPage() {
         try {
             if (editingId) {
                 await axios.put(
-                    `${
-                        process.env.NEXT_PUBLIC_API_URL ||
-                        'http://localhost/api'
-                    }/budgets/${editingId}`,
+                    `https://robust-delight-production.up.railway.app/api/budgets/${editingId}`,
                     {
                         category,
                         maximum: parseFloat(maximum),
@@ -124,10 +119,7 @@ export default function BudgetsPage() {
                 );
             } else {
                 await axios.post(
-                    `${
-                        process.env.NEXT_PUBLIC_API_URL ||
-                        'http://localhost/api'
-                    }/budgets`,
+                    'https://robust-delight-production.up.railway.app/api/budgets',
                     {
                         category,
                         maximum: parseFloat(maximum),
@@ -148,9 +140,7 @@ export default function BudgetsPage() {
         if (!confirm('Delete this budget?')) return;
         try {
             await axios.delete(
-                `${
-                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
-                }/budgets/${id}`
+                `https://robust-delight-production.up.railway.app/api/budgets/${id}`
             );
             setOpenMenuId(null);
             fetchBudgets();
