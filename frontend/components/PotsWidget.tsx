@@ -19,7 +19,12 @@ export default function PotsWidget() {
     useEffect(() => {
         const fetchPots = async () => {
             try {
-                const response = await axios.get('http://localhost/api/pots');
+                const response = await axios.get(
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/pots`
+                );
                 // We only took the first 4 to fit in the square.
                 setPots(response.data.slice(0, 4));
             } catch (error) {

@@ -49,7 +49,11 @@ export default function BudgetsPage() {
 
     const fetchBudgets = async () => {
         try {
-            const response = await axios.get('http://localhost/api/budgets');
+            const response = await axios.get(
+                `${
+                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
+                }/budgets`
+            );
             const data: Budget[] = response.data;
             setBudgets(data);
 
@@ -107,17 +111,29 @@ export default function BudgetsPage() {
 
         try {
             if (editingId) {
-                await axios.put(`http://localhost/api/budgets/${editingId}`, {
-                    category,
-                    maximum: parseFloat(maximum),
-                    theme,
-                });
+                await axios.put(
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/budgets/${editingId}`,
+                    {
+                        category,
+                        maximum: parseFloat(maximum),
+                        theme,
+                    }
+                );
             } else {
-                await axios.post('http://localhost/api/budgets', {
-                    category,
-                    maximum: parseFloat(maximum),
-                    theme,
-                });
+                await axios.post(
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/budgets`,
+                    {
+                        category,
+                        maximum: parseFloat(maximum),
+                        theme,
+                    }
+                );
             }
 
             resetForm();
@@ -131,7 +147,11 @@ export default function BudgetsPage() {
     const handleDeleteBudget = async (id: number) => {
         if (!confirm('Delete this budget?')) return;
         try {
-            await axios.delete(`http://localhost/api/budgets/${id}`);
+            await axios.delete(
+                `${
+                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
+                }/budgets/${id}`
+            );
             setOpenMenuId(null);
             fetchBudgets();
         } catch (error) {

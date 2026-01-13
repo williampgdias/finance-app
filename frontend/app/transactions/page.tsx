@@ -30,7 +30,9 @@ export default function TransactionsPage() {
     const fetchTransactions = async () => {
         try {
             const response = await axios.get(
-                'http://localhost/api/transactions'
+                `${
+                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
+                }/transactions`
             );
             setTransactions(response.data);
         } catch (error) {
@@ -60,7 +62,11 @@ export default function TransactionsPage() {
             return;
 
         try {
-            await axios.delete(`http://localhost/api/transactions/${id}`);
+            await axios.delete(
+                `${
+                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
+                }/transactions/${id}`
+            );
             fetchTransactions(); // Update the list
         } catch (error) {
             console.error(error);
@@ -71,7 +77,7 @@ export default function TransactionsPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        let cleanAmount = newAmount.toString().replace(',', '.').trim();
+        const cleanAmount = newAmount.toString().replace(',', '.').trim();
 
         if (isNaN(Number(cleanAmount))) {
             alert('Please enter a valid value (use a period or comma).');
@@ -90,12 +96,21 @@ export default function TransactionsPage() {
             if (editingId) {
                 // EDIT MODE (PUT)
                 await axios.put(
-                    `http://localhost/api/transactions/${editingId}`,
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/transactions/${editingId}`,
                     payload
                 );
             } else {
                 // CREATION MODE (POST)
-                await axios.post('http://localhost/api/transactions', payload);
+                await axios.post(
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/transactions`,
+                    payload
+                );
             }
 
             // Clear all
@@ -104,6 +119,7 @@ export default function TransactionsPage() {
             setEditingId(null);
             setShowForm(false);
             fetchTransactions();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error(error);
 

@@ -64,7 +64,9 @@ export default function RecurringBillsPage() {
     const fetchBills = async () => {
         try {
             const response = await axios.get(
-                'http://localhost/api/recurring-bills'
+                `${
+                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
+                }/recurring-bills`
             );
             setBills(response.data);
         } catch (error) {
@@ -132,13 +134,19 @@ export default function RecurringBillsPage() {
             if (editingId) {
                 // Update existing resource
                 await axios.put(
-                    `http://localhost/api/recurring-bills/${editingId}`,
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/recurring-bills/${editingId}`,
                     payload
                 );
             } else {
                 // Create new resource
                 await axios.post(
-                    'http://localhost/api/recurring-bills',
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/recurring-bills`,
                     payload
                 );
             }
@@ -160,7 +168,11 @@ export default function RecurringBillsPage() {
             return;
 
         try {
-            await axios.delete(`http://localhost/api/recurring-bills/${id}`);
+            await axios.delete(
+                `${
+                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
+                }/recurring-bills/${id}`
+            );
             setOpenMenuId(null);
             fetchBills();
         } catch (error) {

@@ -21,7 +21,10 @@ export default function HomeBudgets() {
         const fetchBudgets = async () => {
             try {
                 const response = await axios.get(
-                    'http://localhost/api/budgets'
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/budgets`
                 );
                 // Pega apenas os 4 primeiros para não poluir a home
                 setBudgets(response.data.slice(0, 4));

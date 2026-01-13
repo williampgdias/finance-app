@@ -52,7 +52,11 @@ export default function PotsPage() {
 
     const fetchPots = async () => {
         try {
-            const response = await axios.get('http://localhost/api/pots');
+            const response = await axios.get(
+                `${
+                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
+                }/pots`
+            );
             setPots(response.data);
         } catch (error) {
             console.error(error);
@@ -85,11 +89,20 @@ export default function PotsPage() {
         try {
             if (activePot && modalType === 'edit') {
                 await axios.put(
-                    `http://localhost/api/pots/${activePot.id}`,
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/pots/${activePot.id}`,
                     payload
                 );
             } else {
-                await axios.post('http://localhost/api/pots', payload);
+                await axios.post(
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/pots`,
+                    payload
+                );
             }
             closeAllModals();
             fetchPots();
@@ -112,9 +125,14 @@ export default function PotsPage() {
         if (newTotal < 0) newTotal = 0;
 
         try {
-            await axios.put(`http://localhost/api/pots/${activePot.id}`, {
-                total: newTotal,
-            });
+            await axios.put(
+                `${
+                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
+                }/pots/${activePot.id}`,
+                {
+                    total: newTotal,
+                }
+            );
 
             // Check if you have reached the target (deposit only).
             if (
@@ -138,7 +156,11 @@ export default function PotsPage() {
     const handleDelete = async (id: number) => {
         if (!confirm('Are you sure you want to delete this pot?')) return;
         try {
-            await axios.delete(`http://localhost/api/pots/${id}`);
+            await axios.delete(
+                `${
+                    process.env.NEXT_PUBLIC_API_URL || 'http://localhost/api'
+                }/pots/${id}`
+            );
             closeAllModals();
             fetchPots();
         } catch (error) {

@@ -17,7 +17,10 @@ export default function Home() {
         const fetchData = async () => {
             try {
                 const response = await axios.get(
-                    'http://localhost/api/transactions'
+                    `${
+                        process.env.NEXT_PUBLIC_API_URL ||
+                        'http://localhost/api'
+                    }/transactions`
                 );
                 setTransactions(response.data);
             } catch (error) {
