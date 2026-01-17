@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Loader2, Plus, X, Pencil, Trash2 } from 'lucide-react';
-import Image from 'next/image';
 
 interface Transaction {
     id: number;
@@ -233,13 +232,15 @@ export default function TransactionsPage() {
                             className="grid grid-cols-5 p-4 items-center hover:bg-gray-50 transition-colors group"
                         >
                             <div className="col-span-2 md:col-span-1 flex items-center gap-3">
-                                <Image
-                                    src={transaction.avatar}
-                                    alt={transaction.name}
-                                    width={32}
-                                    height={32}
-                                    className="rounded-full hidden sm:block"
-                                />
+                                {/* Bolinha com Iniciais (Substituindo o Avatar) */}
+                                <div className="hidden sm:block">
+                                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-900 text-xs font-bold border border-gray-200">
+                                        {transaction.name
+                                            .substring(0, 2)
+                                            .toUpperCase()}
+                                    </div>
+                                </div>
+
                                 <span className="font-bold text-gray-900 text-sm">
                                     {transaction.name}
                                 </span>

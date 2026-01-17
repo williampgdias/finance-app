@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { Transaction } from '@/types/Transaction';
-import Image from 'next/image';
 
 interface RecentTransactionsProps {
     transactions: Transaction[];
@@ -51,25 +50,16 @@ export default function RecentTransactions({
                             className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
                         >
                             <div className="flex items-center gap-4">
-                                {/* Avatar / Icon Placeholder */}
+                                {/* Avatar / Icon Placeholder - SÓ INICIAIS */}
                                 <div className="hidden sm:block">
-                                    {transaction.avatar ? (
-                                        <Image
-                                            width={40}
-                                            height={40}
-                                            src={transaction.avatar}
-                                            alt={transaction.name}
-                                            className="rounded-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold">
-                                            {transaction.name
-                                                .substring(0, 2)
-                                                .toUpperCase()}
-                                        </div>
-                                    )}
+                                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold">
+                                        {transaction.name
+                                            .substring(0, 2)
+                                            .toUpperCase()}
+                                    </div>
                                 </div>
 
+                                {/* O resto continua igual (Nome e Data) */}
                                 <div className="flex flex-col">
                                     <span className="font-bold text-gray-900 text-sm">
                                         {transaction.name}
