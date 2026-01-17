@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react/no-unescaped-entities */
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -118,7 +118,7 @@ export default function AdvisorPage() {
     return (
         <main className="h-screen bg-gray-50 flex flex-col items-center pt-8 pb-4 px-4">
             {/* Page Header */}
-            <div className="text-center mb-6 max-w-2xl flex-shrink-0">
+            <div className="text-center mb-6 max-w-2xl shrink-0">
                 <div className="inline-flex items-center justify-center p-3 bg-gray-900 rounded-full mb-3 shadow-lg">
                     <Sparkles className="text-yellow-400" size={24} />
                 </div>
@@ -161,7 +161,7 @@ export default function AdvisorPage() {
                             {/* Avatar Icon */}
                             <div
                                 className={`
-                                w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm
+                                w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 shadow-sm
                                 ${
                                     msg.role === 'user'
                                         ? 'bg-gray-200 text-gray-600'
