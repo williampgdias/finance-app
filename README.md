@@ -15,7 +15,7 @@
 
 ## 🎥 Demo
 
-### **[▶️ Click Here to Watch the Video Walkthrough](SEU_LINK_DO_VIDEO_AQUI)**
+### **[▶️ Click Here to Watch the Video Walkthrough](https://www.youtube.com/watch?v=ek6RFvcd62c)**
 
 > _Since this is a portfolio project with complex infrastructure, I have recorded a full demonstration covering the AI Advisor, Real-time Transactions, and Budgeting features._
 
